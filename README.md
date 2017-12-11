@@ -17,16 +17,16 @@ OrdersController and HomeController where added/modified to handle product displ
 
 The actual PFL Api integration is encapsulated within a service called PflApiSvc.
 
-Models where created to represent the various payloads.  Payload objects represent the response uses a schema-less approach that allows for class specialization (JsonExtensionData).  This cuts down on the number of individual response objects and redundant code needed to be created in order to support the current response payload design of the API.
+Models where created to represent the various payloads.  Payload objects represent the response uses a schema-less approach that allows for class specialization (JsonExtensionData).  I felt this was a way to cut down on the number of individual response objects needed to be created in order to support the current response payload design of the API.
 
-Dependency Injection is used to allow modules to easily support test mocking and also to allow configuration, logging, and service objects to become accessible across all controllers and services.
+Dependency Injection is used to allow modules to easily support test mocking as well as making configuration, logging, and service objects accessible across all controllers and services.
 
 ## Security
-DataEncryption Utility module was created to aid in managing credentials to the PFL Api within the JSON configuration file of appsettings.json.  The security is based on a self-signed cert "pfl.pfx"
+DataEncryption Utility module was created to aid in securing credentials to the PFL Api within the JSON configuration file of appsettings.json.  The security is based on a self-signed cert "pfl.pfx" and employs AES-512
 
 ## Current Capabilities
 
-  * Ability to register an account into the system.  This will become the Customer Account for ordering.
+  * Ability to register an account into the system.  This will be used as the Customer Account for ordering.
   * Login
   * Selection of a Product
   * Basic ordering of the product and ability to adjust quantity.
