@@ -11,18 +11,22 @@ Much of the code is .NET Core scaffolding and was not modified from its original
 
 DataEncryption utility module was created to represent configuration encryption
 
-Index.cshtml represents the page that drives the UI.
+Index.cshtml was modified to represent the products page that drives the UI.
 
 OrdersController and HomeController where added/modified to handle product display and Ordering capabilities
 
 The actual PFL Api integration is encapsulated within a service called PflApiSvc.
 
-Models where created to represent the various payloads.  Payload objects represent the response uses a schema-less approach that allows for class specialization (JsonExtensionData).  I felt this was a way to cut down on the number of individual response objects needed to be created in order to support the current response payload design of the API.
+Models where created to represent the various payloads and PFL objects.  Response payload objects use a schema-less approach that allows for class specialization (JsonExtensionData).  I felt this was a way to cut down on the number of individual response objects needed to be created in order to support the current response payload design of the API.
 
 Dependency Injection is used to allow modules to easily support test mocking as well as making configuration, logging, and service objects accessible across all controllers and services.
 
+UI Wireframe is included that represents the up front design work done on the basic UI layout before coding.
+
+
 ## Security
 DataEncryption Utility module was created to aid in securing credentials to the PFL Api within the JSON configuration file of appsettings.json.  The security is based on a self-signed cert "pfl.pfx" and employs AES-512
+
 
 ## Current Capabilities
 
