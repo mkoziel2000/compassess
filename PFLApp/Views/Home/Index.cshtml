@@ -1,0 +1,167 @@
+﻿@model IList<PflProductModel>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .thumbnail {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .caption {
+        position: absolute;
+        top: -100%;
+        right: 0;
+        background: rgba(66, 139, 202, 0.75);
+        width: 100%;
+        height: 100%;
+        padding: 2%;
+        text-align: center;
+        color: #fff !important;
+        z-index: 2;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        -o-transition: all 0.5s ease-in-out;
+        -ms-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+    }
+
+    .thumbnail:hover .caption {
+        top: 0%;
+    }
+</style>
+
+<script>
+    var Pfl_Products = @Html.Raw(Json.Serialize(Model));
+</script>
+
+<div class="container">
+    <h1>Welcome</h1>
+    <p>Choose a product to order</p>
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-3">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h4>@product.Name</h4>
+                        <p>@product.Description</p>
+                        <p><button type="button" class="btn btn-primary active" onclick="javascript:Pfl_OpenCreateOrder(@product.ProductId)">Order</button></p>
+                    </div>
+                    <img src="@product.ImageUrl" alt="@product.Name">
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div id="CreateOrderModal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Product</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error" class="alert alert-danger" role="alert" style="display:none"></div>
+                <form id="ProductForm">
+                    <input type="hidden" id="ProductId"/>
+                    <div id="ProductForm">
+                        <div class="row">
+                            <div id="ProductImage" class="col-md-6 thumbnail">
+                            </div>
+                            <div class="col-md-6">
+                                <h3 id="ProductName"></h3>
+                                <h5 id="ProductDesc"></h5>
+                                <p><span>Quantity: </span><input type="text" id="ProductQuantity" /></p>
+                            </div>
+                        </div>
+                        <div id="AdditionalFields" class="row">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="Pfl_OrderProduct()">Submit Order</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="OrderSubmitted" class="modal fade">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Success</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3>Order submitted!</h3>
+                <p></p>
+                <h5>Order Number is #<span id="OrderNumberDisplay"></span></h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function Pfl_OpenCreateOrder(productId) {
+        var product = Pfl_FindProduct(productId);
+        if (product !== null) {
+            $("#ProductId").val(productId);
+            $("#ProductImage").html($("<img>").attr("src", product.imageUrl));
+            $("#ProductName").text(product.name);
+            $("#ProductDesc").text(product.description);
+            $("#ProductQuantity").val(product.quantityDefault);
+            $("#CreateOrderModal").modal("show");
+        }
+    }
+
+    function Pfl_FindProduct(productId) {
+        if (Pfl_Products !== null && productId !== "") {
+            for (var idx = 0; idx < Pfl_Products.length; idx++) {
+                if (Pfl_Products[idx].productId === productId) {
+                    return Pfl_Products[idx];
+                }
+            }
+        }
+        return null;
+    }
+
+    function Pfl_OrderProduct() {
+        var orderItems = [{
+            "itemSequenceNumber": 1,
+            "productID": $("#ProductId").val(),
+            "quantity": $("#ProductQuantity").val()
+        }];
+        $.ajax({
+            type: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "/api/order",
+            data: JSON.stringify(orderItems),
+            datatype: "json",
+            success: function (resp) {
+                $("#error").hide();
+                $("#CreateOrderModal").modal("hide");
+                $("#OrderNumberDisplay").text(resp.orderNumber);
+                $("#OrderSubmitted").modal("show");
+            },
+            error: function (resp) {
+                $("#error").text(resp.responseText);
+                $("#error").show();
+            }
+        });
+    }
+</script>
